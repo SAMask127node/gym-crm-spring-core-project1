@@ -12,6 +12,7 @@
         <spring.version>6.1.8</spring.version>
         <java.version>21</java.version>
         <junit.version>5.9.0</junit.version>
+        <assertj.version>3.24.2</assertj.version>
     </properties>
     <dependencies>
         <!-- Spring Context -->
@@ -20,19 +21,12 @@
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
         </dependency>
-
-        <!-- SLF4J + Simple binding -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.0</version>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-
         <!-- JUnit 5 & Spring Test -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -45,11 +39,6 @@
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
-            <version>2.1.1</version>
         </dependency>
     </dependencies>
 
