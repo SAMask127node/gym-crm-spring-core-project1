@@ -1,37 +1,50 @@
 package com.epam.gym.dao;
 
 import com.epam.gym.domain.Trainee;
-import org.springframework.stereotype.Repository;
-
 import java.util.*;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class TraineeDaoImpl implements TraineeDao {
-    private final Map<String, Trainee> storage = new HashMap<>();
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    private Session session() {
+        // uses Spring’s current transactional session
+        return sessionFactory.getCurrentSession();
+    }
 
     @Override
-    public Trainee save(Trainee trainee) {
-        storage.put(trainee.username(), trainee);
-        return trainee;
+    public Trainee save(Trainee t) {
+        session().saveOrUpdate(t);
+        return t;
     }
 
     @Override
     public Optional<Trainee> findByUsername(String username) {
-        return Optional.ofNullable(storage.get(username));
+        var hql = "from Trainee t join fetch t.user u where u.username = :un";
+        var query = session().createQuery(hql, Trainee.class)
+                .setParameter("un", username);
+        return query.uniqueResultOptional();
     }
 
     @Override
     public Collection<Trainee> findAll() {
-        return Collections.unmodifiableCollection(storage.values());
+        return session().createQuery("from Trainee", Trainee.class)
+                .list();
     }
 
     @Override
     public void deleteByUsername(String username) {
-        storage.remove(username);
+        findByUsername(username).ifPresent(session()::delete);
     }
 
     @Override
     public void deleteAll() {
-        storage.clear();
+        session().createQuery("delete from Trainee").executeUpdate();
     }
 }

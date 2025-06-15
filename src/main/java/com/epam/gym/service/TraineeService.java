@@ -17,7 +17,7 @@ public interface TraineeService {
     /**
      * Update an existing trainee’s first/last name (username and password unchanged).
      */
-    Trainee update(String username, String newFirst, String newLast);
+//    Trainee update(String username, String newFirst, String newLast);
 
     /**
      * Delete by username.

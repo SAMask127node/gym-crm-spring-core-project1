@@ -1,37 +1,54 @@
 package com.epam.gym.dao;
 
 import com.epam.gym.domain.Trainer;
+import java.util.Collection;
+import java.util.Optional;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import java.util.*;
 
 @Repository
 public class TrainerDaoImpl implements TrainerDao {
-    private final Map<String, Trainer> storage = new HashMap<>();
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    private Session session() {
+        return sessionFactory.getCurrentSession();
+    }
 
     @Override
     public Trainer save(Trainer trainer) {
-        storage.put(trainer.username(), trainer);
+        session().saveOrUpdate(trainer);
         return trainer;
     }
 
     @Override
     public Optional<Trainer> findByUsername(String username) {
-        return Optional.ofNullable(storage.get(username));
+        String hql = "from Trainer t join fetch t.user u where u.username = :un";
+        return session()
+                .createQuery(hql, Trainer.class)
+                .setParameter("un", username)
+                .uniqueResultOptional();
     }
 
     @Override
     public Collection<Trainer> findAll() {
-        return Collections.unmodifiableCollection(storage.values());
+        return session()
+                .createQuery("from Trainer", Trainer.class)
+                .list();
     }
 
     @Override
     public void deleteByUsername(String username) {
-        storage.remove(username);
+        findByUsername(username).ifPresent(session()::delete);
     }
 
     @Override
     public void deleteAll() {
-        storage.clear();
+        session()
+                .createQuery("delete from Trainer")
+                .executeUpdate();
     }
 }

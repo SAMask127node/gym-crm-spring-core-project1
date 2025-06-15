@@ -3,63 +3,52 @@ package com.epam.gym.service;
 import com.epam.gym.dao.TraineeDao;
 import com.epam.gym.domain.Trainee;
 import com.epam.gym.util.CredentialGenerator;
+import java.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TraineeServiceImpl implements TraineeService {
-    private final TraineeDao traineeDao;
+
+    private final TraineeDao dao;
     private long nextId = 1L;
 
-    public TraineeServiceImpl(TraineeDao traineeDao) {
-        this.traineeDao = traineeDao;
-        // init nextId from existing data
-        traineeDao.findAll()
-                .stream()
-                .mapToLong(Trainee::id)
-                .max()
-                .ifPresent(max -> nextId = max + 1);
+    @Autowired
+    public TraineeServiceImpl(TraineeDao dao) {
+        this.dao = dao;
+        // If you ever pre-seed data, initialize nextId here via dao.findAll()
     }
 
     @Override
-    public Trainee create(String firstName, String lastName) {
-        String baseUsername = firstName + "." + lastName;
-        String username = baseUsername;
+    @Transactional
+    public Trainee create(String first, String last) {
+        String base = first + "." + last;
+        String username = base;
         int suffix = 0;
-        while (traineeDao.findByUsername(username).isPresent()) {
-            suffix++;
-            username = baseUsername + suffix;
+        while (dao.findByUsername(username).isPresent()) {
+            username = base + (++suffix);
         }
-        String password = CredentialGenerator.randomPassword();
-        Trainee t = new Trainee(nextId++, firstName, lastName, username, password);
-        return traineeDao.save(t);
+        String pw = CredentialGenerator.randomPassword();
+        Trainee t = new Trainee(null, first, last, username, pw);
+        return dao.save(t);
     }
 
     @Override
-    public Trainee update(String username, String newFirst, String newLast) {
-        Trainee existing = traineeDao.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("No such Trainee: " + username));
-        Trainee updated = new Trainee(existing.id(), newFirst, newLast, existing.username(), existing.password());
-        return traineeDao.save(updated);
-    }
-
-    @Override
-    public void delete(String username) {
-        if (traineeDao.findByUsername(username).isEmpty()) {
-            throw new IllegalArgumentException("No such Trainee: " + username);
-        }
-        traineeDao.deleteByUsername(username);
-    }
-
-    @Override
+    @Transactional(readOnly = true)
     public Optional<Trainee> find(String username) {
-        return traineeDao.findByUsername(username);
+        return dao.findByUsername(username);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Collection<Trainee> findAll() {
-        return traineeDao.findAll();
+        return dao.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void delete(String username) {
+        dao.deleteByUsername(username);
     }
 }
