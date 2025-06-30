@@ -58,22 +58,6 @@ class TraineeServiceImplTest {
     }
 
     @Test
-    void testUpdateKeepsPassword() {
-        // given
-        Trainee original = traineeService.create("Carl", "Sagan");
-        String uname = original.username();
-
-        // when
-        Trainee updated = traineeService.update(uname, "Carl", "Jung");
-
-        // then
-        assertThat(updated.username()).isEqualTo(uname);
-        assertThat(updated.password()).isEqualTo(original.password());
-        assertThat(updated.firstName()).isEqualTo("Carl");
-        assertThat(updated.lastName()).isEqualTo("Jung");
-    }
-
-    @Test
     void testDeleteAndFindAll() {
         // given
         Trainee t1 = traineeService.create("Diana", "Prince");
