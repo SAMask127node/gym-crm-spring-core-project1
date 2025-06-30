@@ -1,54 +1,29 @@
-package com.epam.gym.service;
+package com.epam.gym.service.impl;
 
-import com.epam.gym.dao.TraineeDao;
 import com.epam.gym.domain.Trainee;
-import com.epam.gym.util.CredentialGenerator;
-import java.util.*;
+import com.epam.gym.service.TraineeService;
+import com.epam.gym.service.dto.Credentials;
+import com.epam.gym.dao.TraineeDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class TraineeServiceImpl implements TraineeService {
-
-    private final TraineeDao dao;
-    private long nextId = 1L;
-
-    @Autowired
-    public TraineeServiceImpl(TraineeDao dao) {
-        this.dao = dao;
-        // If you ever pre-seed data, initialize nextId here via dao.findAll()
-    }
+    @Autowired private TraineeDao dao;
 
     @Override
     @Transactional
-    public Trainee create(String first, String last) {
-        String base = first + "." + last;
-        String username = base;
-        int suffix = 0;
-        while (dao.findByUsername(username).isPresent()) {
-            username = base + (++suffix);
-        }
-        String pw = CredentialGenerator.randomPassword();
-        Trainee t = new Trainee(null, first, last, username, pw);
-        return dao.save(t);
+    public Credentials create(String firstName, String lastName, LocalDate dateOfBirth, String address) {
+        // TODO: generate username/password, save via DAO
+        return dao.create(firstName, lastName, dateOfBirth, address);
     }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Trainee> find(String username) {
-        return dao.findByUsername(username);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Collection<Trainee> findAll() {
-        return dao.findAll();
-    }
-
-    @Override
-    @Transactional
-    public void delete(String username) {
-        dao.deleteByUsername(username);
-    }
+    @Override @Transactional public void changeLogin(String oldUsername, String newUsername) { dao.changeLogin(oldUsername, newUsername); }
+    @Override public Trainee getProfile(String username) { return dao.findByUsername(username); }
+    @Override @Transactional public Trainee update(String username, String first, String last, LocalDate dob, String addr) { return dao.update(username, first, last, dob, addr); }
+    @Override @Transactional public void delete(String username) { dao.deleteByUsername(username); }
+    @Override @Transactional public void assignTrainer(String traineeUsername, String trainerUsername) { dao.assignTrainer(traineeUsername, trainerUsername); }
+    @Override public List<String> getTrainers(String traineeUsername) { return dao.findTrainers(traineeUsername); }
 }
