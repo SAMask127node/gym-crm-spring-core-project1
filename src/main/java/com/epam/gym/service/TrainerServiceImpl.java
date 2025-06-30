@@ -3,6 +3,7 @@ package com.epam.gym.service;
 import com.epam.gym.dao.TrainerDao;
 import com.epam.gym.domain.Trainer;
 import com.epam.gym.util.CredentialGenerator;
+
 import java.util.Collection;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;

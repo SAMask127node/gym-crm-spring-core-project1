@@ -46,5 +46,6 @@ public class TraineeDaoImpl implements TraineeDao {
     @Override
     public void deleteAll() {
         session().createQuery("delete from Trainee").executeUpdate();
+
     }
 }
