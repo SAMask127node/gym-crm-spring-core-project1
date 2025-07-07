@@ -48,4 +48,5 @@ public class TraineeDaoImpl implements TraineeDao {
         session().createQuery("delete from Trainee").executeUpdate();
 
     }
+
 }

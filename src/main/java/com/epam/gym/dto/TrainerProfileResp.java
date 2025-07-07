@@ -1,20 +1,19 @@
-package com.epam.gym.domain;
+package com.epam.gym.dto;
 
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Trainee {
+@ApiModel("TrainerProfileResp")
+public class TrainerProfileResp {
     private String username;
     private String firstName;
     private String lastName;
-    private LocalDate dateOfBirth;
-    private String address;
+    private String specialization;
 }

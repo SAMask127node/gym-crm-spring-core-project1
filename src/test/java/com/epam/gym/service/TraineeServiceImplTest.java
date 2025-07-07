@@ -1,78 +1,63 @@
 package com.epam.gym.service;
 
-import com.epam.gym.dao.TraineeDaoImpl;
-import com.epam.gym.dao.TraineeDao;
+import com.epam.gym.dao.inmemory.InMemoryTraineeDao;
 import com.epam.gym.domain.Trainee;
+import com.epam.gym.service.dto.Credentials;
+import com.epam.gym.service.impl.TraineeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 class TraineeServiceImplTest {
-
-    private TraineeDao traineeDao;
-    private TraineeService traineeService;
+    private TraineeService service;
 
     @BeforeEach
     void setUp() {
-        // given: a fresh in‐memory DAO and service
-        traineeDao = new TraineeDaoImpl();
-        traineeDao.deleteAll(); // ensure empty
-        traineeService = new TraineeServiceImpl(traineeDao);
+        // given: in-memory DAO and service
+        var dao = new InMemoryTraineeDao();
+        service = new TraineeServiceImpl(dao);
     }
 
     @Test
-    void testCreateAndFind() {
-        // given
-        String first = "Alice";
-        String last = "Wonderland";
-
+    void createAndFind() {
         // when
-        Trainee created = traineeService.create(first, last);
+        Credentials creds = service.create("John", "Doe", LocalDate.of(1990,1,1), "Addr");
+        Trainee t = service.getProfile(creds.username());
 
         // then
-        assertThat(created).isNotNull();
-        assertThat(created.username()).isEqualTo("Alice.Wonderland");
-        assertThat(created.password()).isNotBlank();
-
-        Optional<Trainee> found = traineeService.find(created.username());
-        assertThat(found).isPresent()
-                .get()
-                .extracting(Trainee::firstName, Trainee::lastName)
-                .containsExactly("Alice", "Wonderland");
+        assertThat(t).isNotNull();
+        assertThat(t.getUsername()).isEqualTo(creds.username());
+        assertThat(t.getFirstName()).isEqualTo("John");
+        assertThat(t.getLastName()).isEqualTo("Doe");
     }
 
     @Test
-    void testUniqueUsernameSuffix() {
+    void changeLogin() {
         // given
-        traineeService.create("Bob", "Builder");
+        Credentials c = service.create("Jane", "Smith", null, null);
 
         // when
-        Trainee second = traineeService.create("Bob", "Builder");
+        service.changeLogin(c.username(), "jane.smith");
+        Trainee t = service.getProfile("jane.smith");
 
         // then
-        assertThat(second.username()).isEqualTo("Bob.Builder1");
+        assertThat(t).isNotNull();
+        assertThat(t.getUsername()).isEqualTo("jane.smith");
     }
 
     @Test
-    void testDeleteAndFindAll() {
+    void assignTrainerAndList() {
         // given
-        Trainee t1 = traineeService.create("Diana", "Prince");
-        Trainee t2 = traineeService.create("Eve", "Polastri");
+        Credentials c = service.create("A","B",null,null);
 
         // when
-        traineeService.delete(t1.username());
+        service.assignTrainer(c.username(), "coach1");
+        List<String> trainers = service.getTrainers(c.username());
 
         // then
-        List<Trainee> all = List.copyOf(traineeService.findAll());
-        assertThat(all).extracting(Trainee::username).doesNotContain(t1.username());
-
-        // delete nonexistent should throw
-        assertThatThrownBy(() -> traineeService.delete("non.existing"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("No such Trainee");
+        assertThat(trainers).containsExactly("coach1");
     }
 }

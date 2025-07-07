@@ -1,36 +1,16 @@
 package com.epam.gym.service;
 
 import com.epam.gym.domain.Trainee;
+import com.epam.gym.service.dto.Credentials;
+import java.time.LocalDate;
+import java.util.List;
 
-import java.util.Collection;
-import java.util.Optional;
-
-/**
- * Service contract (business logic) for Trainee.
- */
 public interface TraineeService {
-    /**
-     * Create a new Trainee with unique username and random password.
-     */
-    Trainee create(String firstName, String lastName);
-
-    /**
-     * Update an existing trainee’s first/last name (username and password unchanged).
-     */
-//    Trainee update(String username, String newFirst, String newLast);
-
-    /**
-     * Delete by username.
-     */
+    Credentials create(String firstName, String lastName, LocalDate dateOfBirth, String address);
+    void changeLogin(String oldUsername, String newUsername);
+    Trainee getProfile(String username);
+    Trainee update(String username, String firstName, String lastName, LocalDate dateOfBirth, String address);
     void delete(String username);
-
-    /**
-     * Find by username.
-     */
-    Optional<Trainee> find(String username);
-
-    /**
-     * List all trainees.
-     */
-    Collection<Trainee> findAll();
+    void assignTrainer(String traineeUsername, String trainerUsername);
+    List<String> getTrainers(String traineeUsername);
 }

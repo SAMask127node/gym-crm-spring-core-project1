@@ -1,62 +1,48 @@
 package com.epam.gym.service;
 
-import com.epam.gym.dao.TrainingDao;
-import com.epam.gym.dao.TrainingDaoImpl;
+import com.epam.gym.dao.inmemory.InMemoryTrainingDao;
 import com.epam.gym.domain.Training;
+import com.epam.gym.service.impl.TrainingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 class TrainingServiceImplTest {
-
-    private TrainingDao trainingDao;
-    private TrainingService trainingService;
+    private TrainingService service;
 
     @BeforeEach
     void setUp() {
-        // given: a fresh in‐memory DAO and service
-        trainingDao = new TrainingDaoImpl();
-        trainingDao.deleteAll();
-        trainingService = new TrainingServiceImpl(trainingDao);
+        var dao = new InMemoryTrainingDao();
+        service = new TrainingServiceImpl(dao);
     }
 
     @Test
-    void testCreateAndFind() {
+    void addAndListByTrainee() {
         // given
-        String name = "YogaBasics";
-        String traineeUsername = "Alice.Wonderland";
-        String trainerUsername = "Grace.Hopper";
+        Training t1 = service.create("Yoga","u1","tr1", LocalDate.now(), 60, "YOGA");
 
         // when
-        Training created = trainingService.create(name, traineeUsername, trainerUsername);
+        List<Training> list = service.findByTrainee("u1");
 
         // then
-        assertThat(created).isNotNull();
-        assertThat(created.name()).isEqualTo("YogaBasics");
-        assertThat(created.traineeUsername()).isEqualTo("Alice.Wonderland");
-
-        Optional<Training> found = trainingService.find(created.id());
-        assertThat(found).isPresent()
-                .get()
-                .extracting(Training::trainerUsername)
-                .isEqualTo("Grace.Hopper");
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0).getId()).isEqualTo(t1.getId());
     }
 
     @Test
-    void testFindAllIncrement() {
+    void activateDeactivate() {
         // given
-        trainingService.create("Pilates", "Bob.Builder", "Alan.Turing");
+        Training t1 = service.create("Run","u2","tr2",LocalDate.now(),30,"CARDIO");
 
         // when
-        var all = List.copyOf(trainingService.findAll());
+        String s1 = service.deactivate(t1.getId());
+        String s2 = service.activate(t1.getId());
 
         // then
-        assertThat(all).hasSize(1)
-                .extracting(Training::name)
-                .containsExactly("Pilates");
+        assertThat(s1).isEqualTo("inactive");
+        assertThat(s2).isEqualTo("active");
     }
 }

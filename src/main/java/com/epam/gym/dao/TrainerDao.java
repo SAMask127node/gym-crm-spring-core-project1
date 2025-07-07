@@ -1,14 +1,13 @@
 package com.epam.gym.dao;
 
 import com.epam.gym.domain.Trainer;
-
-import java.util.Collection;
-import java.util.Optional;
+import com.epam.gym.service.dto.Credentials;
+import java.util.List;
 
 public interface TrainerDao {
     Trainer save(Trainer trainer);
-    Optional<Trainer> findByUsername(String username);
-    Collection<Trainer> findAll();
-    void deleteByUsername(String username);
-    void deleteAll();
+    Credentials create(String firstName, String lastName, String specialization);
+    Trainer findByUsername(String username);
+    Trainer update(String username, String firstName, String lastName, String specialization);
+    List<String> findTrainees(String trainerUsername);
 }

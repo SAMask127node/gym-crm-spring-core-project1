@@ -1,73 +1,44 @@
 package com.epam.gym.service;
 
-import com.epam.gym.dao.TrainerDaoImpl;
-import com.epam.gym.dao.TrainerDao;
+import com.epam.gym.dao.inmemory.InMemoryTrainerDao;
 import com.epam.gym.domain.Trainer;
+import com.epam.gym.service.dto.Credentials;
+import com.epam.gym.service.impl.TrainerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.*;
-
 import java.util.List;
-import java.util.Optional;
 
 class TrainerServiceImplTest {
-
-    private TrainerDao trainerDao;
-    private TrainerService trainerService;
+    private TrainerService service;
 
     @BeforeEach
     void setUp() {
-        // given: a fresh in‐memory DAO and service
-        trainerDao = new TrainerDaoImpl();
-        trainerDao.deleteAll(); // ensure empty
-        trainerService = new TrainerServiceImpl(trainerDao);
+        var dao = new InMemoryTrainerDao();
+        service = new TrainerServiceImpl(dao);
     }
 
     @Test
-    void testCreateAndFind() {
-        // given
-        String first = "Grace";
-        String last = "Hopper";
+    void createAndFind() {
+        Credentials creds = service.create("Alan","Turing","CS");
+        Trainer t = service.getProfile(creds.username());
 
-        // when
-        Trainer created = trainerService.create(first, last);
-
-        // then
-        assertThat(created).isNotNull();
-        assertThat(created.username()).isEqualTo("Grace.Hopper");
-        assertThat(created.password()).isNotBlank();
-
-        Optional<Trainer> found = trainerService.find(created.username());
-        assertThat(found).isPresent()
-                .get()
-                .extracting(Trainer::lastName)
-                .isEqualTo("Hopper");
+        assertThat(t).isNotNull();
+        assertThat(t.getUsername()).isEqualTo(creds.username());
+        assertThat(t.getSpecialization()).isEqualTo("CS");
     }
 
     @Test
-    void testUniqueUsernameSuffix() {
-        // given
-        trainerService.create("Alan", "Turing");
+    void updateTrainer() {
+        Credentials creds = service.create("Ada","Lovelace","Math");
+        Trainer t2 = service.update(creds.username(), "Ada","Lovelace","Physics");
 
-        // when
-        Trainer second = trainerService.create("Alan", "Turing");
-
-        // then
-        assertThat(second.username()).isEqualTo("Alan.Turing1");
+        assertThat(t2.getSpecialization()).isEqualTo("Physics");
     }
 
     @Test
-    void testFindAll() {
-        // given
-        trainerService.create("Linus", "Torvalds");
-
-        // when
-        var all = List.copyOf(trainerService.findAll());
-
-        // then
-        assertThat(all).hasSize(1)
-                .extracting(Trainer::username)
-                .containsExactly("Linus.Torvalds");
+    void listTraineesEmpty() {
+        List<String> list = service.getTrainees("nonexist");
+        assertThat(list).isEmpty();
     }
 }

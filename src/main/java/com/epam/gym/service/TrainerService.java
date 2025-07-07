@@ -1,26 +1,12 @@
 package com.epam.gym.service;
 
 import com.epam.gym.domain.Trainer;
+import com.epam.gym.service.dto.Credentials;
+import java.util.List;
 
-import java.util.Collection;
-import java.util.Optional;
-
-/**
- * Service contract (business logic) for Trainer.
- */
 public interface TrainerService {
-    /**
-     * Create a new Trainer with unique username and random password.
-     */
-    Trainer create(String firstName, String lastName);
-
-    /**
-     * Find by username.
-     */
-    Optional<Trainer> find(String username);
-
-    /**
-     * List all trainers.
-     */
-    Collection<Trainer> findAll();
+    Credentials create(String firstName, String lastName, String specialization);
+    Trainer getProfile(String username);
+    Trainer update(String username, String firstName, String lastName, String specialization);
+    List<String> getTrainees(String trainerUsername);
 }
