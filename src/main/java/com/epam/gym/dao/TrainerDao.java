@@ -5,6 +5,7 @@ import com.epam.gym.service.dto.Credentials;
 import java.util.List;
 
 public interface TrainerDao {
+    Trainer save(Trainer trainer);
     Credentials create(String firstName, String lastName, String specialization);
     Trainer findByUsername(String username);
     Trainer update(String username, String firstName, String lastName, String specialization);

@@ -13,19 +13,19 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(value = "TraineeRegReq")
-public class TraineeRegReq {
+@ApiModel("UpdateTraineeReq")
+public class UpdateTraineeReq {
     @NotBlank 
-    @ApiModelProperty(required = true) 
+    @ApiModelProperty(required=true) 
     private String firstName;
     
     @NotBlank 
-    @ApiModelProperty(required = true) 
+    @ApiModelProperty(required=true) 
     private String lastName;
     
-    @ApiModelProperty(required = false) 
+    @ApiModelProperty(required=false) 
     private LocalDate dateOfBirth;
     
-    @ApiModelProperty(required = false) 
+    @ApiModelProperty(required=false) 
     private String address;
 }

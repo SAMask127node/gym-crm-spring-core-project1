@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TrainingService {
-    Training create(String name, String traineeUsername, String trainerUsername, LocalDate date, int duration, String typeCode);
+    Training create(String name, String traineeUsername, String trainerUsername);
     List<Training> findByTrainee(String traineeUsername);
     List<Training> findByTrainer(String trainerUsername);
     String activate(Long id);

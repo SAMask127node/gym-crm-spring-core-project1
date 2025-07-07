@@ -7,25 +7,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDate;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(value = "TraineeRegReq")
-public class TraineeRegReq {
+@ApiModel("UpdateTrainerReq")
+public class UpdateTrainerReq {
     @NotBlank 
-    @ApiModelProperty(required = true) 
+    @ApiModelProperty(required=true) 
     private String firstName;
     
     @NotBlank 
-    @ApiModelProperty(required = true) 
+    @ApiModelProperty(required=true) 
     private String lastName;
     
-    @ApiModelProperty(required = false) 
-    private LocalDate dateOfBirth;
-    
-    @ApiModelProperty(required = false) 
-    private String address;
+    @NotBlank 
+    @ApiModelProperty(required=true) 
+    private String specialization;
 }

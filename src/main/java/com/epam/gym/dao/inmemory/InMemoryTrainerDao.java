@@ -12,21 +12,9 @@ public class InMemoryTrainerDao implements TrainerDao {
     private static final Map<String, String> passwords = new ConcurrentHashMap<>();
 
     @Override
-    public Credentials create(String firstName, String lastName, String specialization) {
-        String base = firstName + "." + lastName;
-        String username = base;
-        AtomicInteger suffix = new AtomicInteger(0);
-        while (trainers.containsKey(username)) {
-            username = base + suffix.incrementAndGet();
-        }
-        Trainer t = new Trainer();
-        t.setUsername(username);
-        t.setFirstName(firstName);
-        t.setLastName(lastName);
-        t.setSpecialization(specialization);
-        trainers.put(username, t);
-        passwords.put(username, UUID.randomUUID().toString());
-        return new Credentials(username, passwords.get(username));
+    public Trainer save(Trainer t) {
+        store.put(t.getUsername(), t);
+        return t;
     }
 
     @Override

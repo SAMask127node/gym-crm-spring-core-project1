@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TraineeDao {
+    Trainee save(Trainee trainee);
     Credentials create(String firstName, String lastName, LocalDate dateOfBirth, String address);
     void changeLogin(String oldUsername, String newUsername);
     Trainee findByUsername(String username);

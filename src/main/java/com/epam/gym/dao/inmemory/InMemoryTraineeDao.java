@@ -13,23 +13,9 @@ public class InMemoryTraineeDao implements TraineeDao {
     private static final Map<String, Set<String>> traineeToTrainers = new ConcurrentHashMap<>();
     private static final Map<String, String> passwords = new ConcurrentHashMap<>();
 
-    @Override
-    public Credentials create(String firstName, String lastName, LocalDate dateOfBirth, String address) {
-        String base = firstName + "." + lastName;
-        String username = base;
-        AtomicInteger suffix = new AtomicInteger(0);
-        while (trainees.containsKey(username)) {
-            username = base + suffix.incrementAndGet();
-        }
-        Trainee t = new Trainee();
-        t.setUsername(username);
-        t.setFirstName(firstName);
-        t.setLastName(lastName);
-        t.setDateOfBirth(dateOfBirth);
-        t.setAddress(address);
-        trainees.put(username, t);
-        passwords.put(username, UUID.randomUUID().toString());
-        return new Credentials(username, passwords.get(username));
+    public Trainee save(Trainee t) {
+        storage.put(t.getUsername(), t);
+        return t;
     }
 
     @Override

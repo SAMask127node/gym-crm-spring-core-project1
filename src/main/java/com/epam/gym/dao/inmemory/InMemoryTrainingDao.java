@@ -13,18 +13,8 @@ public class InMemoryTrainingDao implements TrainingDao {
     private static final AtomicLong idGen = new AtomicLong(0);
 
     @Override
-    public Training create(String name, String traineeUsername, String trainerUsername, LocalDate date, int duration, String typeCode) {
-        Long id = idGen.incrementAndGet();
-        Training t = new Training();
-        t.setId(id);
-        t.setName(name);
-        t.setTraineeUsername(traineeUsername);
-        t.setTrainerUsername(trainerUsername);
-        t.setDate(date);
-        t.setDuration(duration);
-        t.setTypeCode(typeCode);
-        t.setActive(true);
-        trainings.put(id, t);
+    public Training save(Training t) {
+        store.put(t.getId(), t);
         return t;
     }
 
