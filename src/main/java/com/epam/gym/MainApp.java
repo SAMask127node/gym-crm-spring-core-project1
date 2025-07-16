@@ -1,14 +1,11 @@
 package com.epam.gym;
 
-import com.epam.gym.config.HibernateConfig;
-import com.epam.gym.facade.GymFacade;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public class MainApp {
+@SpringBootApplication
+public class GymApplication {
     public static void main(String[] args) {
-        var ctx = new AnnotationConfigApplicationContext(HibernateConfig.class);
-        var facade = ctx.getBean(GymFacade.class);
-        var t = facade.createTrainee("John", "Doe");
-        System.out.println("Created: " + t.username());
+        SpringApplication.run(GymApplication.class, args);
     }
 }

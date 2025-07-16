@@ -17,12 +17,18 @@ import javax.validation.Valid;
 @Validated
 public class AuthenticationController {
     private final AuthenticationService authService;
+    private final RequestMetrics requestMetrics;
 
     private String tx() { return MDC.get("transactionId"); }
 
     @GetMapping("/login")
     public ResponseEntity<Void> login(@Valid @ModelAttribute LoginReq request) {
+        log.info("[{}] GET /api/login {}", tx(), req);
         authService.authenticate(request.getUsername(), request.getPassword());
+        // 💡 increment our Prometheus counter
+        requestMetrics.incrementLogin();
+        log.info("[{}] RESP 200 login successful", tx());
+
         return ResponseEntity.ok().build();
     }
 
