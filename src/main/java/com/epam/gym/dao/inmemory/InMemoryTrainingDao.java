@@ -2,67 +2,48 @@ package com.epam.gym.dao.inmemory;
 
 import com.epam.gym.dao.TrainingDao;
 import com.epam.gym.domain.Training;
-import com.epam.gym.domain.TrainingType;
-import java.time.LocalDate;
+import org.springframework.stereotype.Repository;
+
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Repository
 public class InMemoryTrainingDao implements TrainingDao {
-    private static final Map<Long, Training> trainings = new ConcurrentHashMap<>();
-    private static final AtomicLong idGen = new AtomicLong(0);
+    private final Map<Long, Training> byId = new HashMap<>();
+    private final AtomicLong idGen = new AtomicLong(0);
 
     @Override
-    public Training save(Training t) {
-        store.put(t.getId(), t);
-        return t;
+    public Optional<Training> findById(Long id) {
+        return Optional.ofNullable(byId.get(id));
     }
 
     @Override
-    public List<Training> findByTrainee(String traineeUsername) {
-        List<Training> list = new ArrayList<>();
-        trainings.values().forEach(t -> {
-            if (t.getTraineeUsername().equals(traineeUsername)) list.add(t);
-        });
-        return list;
+    public List<Training> findAll() {
+        return new ArrayList<>(byId.values());
     }
 
     @Override
-    public List<Training> findByTrainer(String trainerUsername) {
-        List<Training> list = new ArrayList<>();
-        trainings.values().forEach(t -> {
-            if (t.getTrainerUsername().equals(trainerUsername)) list.add(t);
-        });
-        return list;
+    public Training create(Training training) {
+        long id = idGen.incrementAndGet();
+        training.setId(id);
+        byId.put(id, training);
+        return training;
     }
 
     @Override
-    public String activate(Long id) {
-        Training t = trainings.get(id);
-        if (t != null) {
-            t.setActive(true);
-            return "active";
-        }
-        return null;
+    public Training update(Training training) {
+        byId.put(training.getId(), training);
+        return training;
     }
 
     @Override
-    public String deactivate(Long id) {
-        Training t = trainings.get(id);
-        if (t != null) {
-            t.setActive(false);
-            return "inactive";
-        }
-        return null;
+    public void deleteById(Long id) {
+        byId.remove(id);
     }
 
     @Override
-    public List<TrainingType> listTypes() {
-        // example types
-        return List.of(
-                new TrainingType("YOGA", "Yoga session"),
-                new TrainingType("CARDIO", "Cardio workout"),
-                new TrainingType("STRENGTH", "Strength training")
-        );
+    public void deleteAll() {
+        byId.clear();
+        idGen.set(0);
     }
 }

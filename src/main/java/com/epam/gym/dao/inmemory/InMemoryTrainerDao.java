@@ -2,45 +2,55 @@ package com.epam.gym.dao.inmemory;
 
 import com.epam.gym.dao.TrainerDao;
 import com.epam.gym.domain.Trainer;
-import com.epam.gym.service.dto.Credentials;
+import org.springframework.stereotype.Repository;
+
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
+@Repository
 public class InMemoryTrainerDao implements TrainerDao {
-    private static final Map<String, Trainer> trainers = new ConcurrentHashMap<>();
-    private static final Map<String, String> passwords = new ConcurrentHashMap<>();
+    private final Map<Long, Trainer> byId = new HashMap<>();
+    private final AtomicLong idGen = new AtomicLong(0);
 
     @Override
-    public Trainer save(Trainer t) {
-        store.put(t.getUsername(), t);
-        return t;
+    public Optional<Trainer> findById(Long id) {
+        return Optional.ofNullable(byId.get(id));
     }
 
     @Override
-    public Trainer findByUsername(String username) {
-        return trainers.get(username);
+    public Optional<Trainer> findByUsername(String username) {
+        return byId.values().stream()
+                .filter(t -> t.getUser().getUsername().equals(username))
+                .findFirst();
     }
 
     @Override
-    public Trainer update(String username, String firstName, String lastName, String specialization) {
-        Trainer t = trainers.get(username);
-        if (t != null) {
-            t.setFirstName(firstName);
-            t.setLastName(lastName);
-            t.setSpecialization(specialization);
-        }
-        return t;
+    public List<Trainer> findAll() {
+        return new ArrayList<>(byId.values());
     }
 
     @Override
-    public List<String> findTrainees(String trainerUsername) {
-        List<String> result = new ArrayList<>();
-        InMemoryTraineeDao.traineeToTrainers.forEach((trainee, trainersSet) -> {
-            if (trainersSet.contains(trainerUsername)) {
-                result.add(trainee);
-            }
-        });
-        return result;
+    public Trainer create(Trainer trainer) {
+        long id = idGen.incrementAndGet();
+        trainer.setId(id);
+        byId.put(id, trainer);
+        return trainer;
+    }
+
+    @Override
+    public Trainer update(Trainer trainer) {
+        byId.put(trainer.getId(), trainer);
+        return trainer;
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        byId.remove(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        byId.clear();
+        idGen.set(0);
     }
 }

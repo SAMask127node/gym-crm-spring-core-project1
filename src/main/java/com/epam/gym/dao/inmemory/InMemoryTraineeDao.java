@@ -2,72 +2,55 @@ package com.epam.gym.dao.inmemory;
 
 import com.epam.gym.dao.TraineeDao;
 import com.epam.gym.domain.Trainee;
-import com.epam.gym.service.dto.Credentials;
-import java.time.LocalDate;
+import org.springframework.stereotype.Repository;
+
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
+@Repository
 public class InMemoryTraineeDao implements TraineeDao {
-    private static final Map<String, Trainee> trainees = new ConcurrentHashMap<>();
-    private static final Map<String, Set<String>> traineeToTrainers = new ConcurrentHashMap<>();
-    private static final Map<String, String> passwords = new ConcurrentHashMap<>();
+    private final Map<Long, Trainee> byId = new HashMap<>();
+    private final AtomicLong idGen = new AtomicLong(0);
 
-    public Trainee save(Trainee t) {
-        storage.put(t.getUsername(), t);
-        return t;
+    @Override
+    public Optional<Trainee> findById(Long id) {
+        return Optional.ofNullable(byId.get(id));
     }
 
     @Override
-    public void changeLogin(String oldUsername, String newUsername) {
-        Trainee t = trainees.remove(oldUsername);
-        String pwd = passwords.remove(oldUsername);
-        if (t != null && pwd != null) {
-            t.setUsername(newUsername);
-            trainees.put(newUsername, t);
-            passwords.put(newUsername, pwd);
-            // transfer assignments
-            Set<String> trainers = traineeToTrainers.remove(oldUsername);
-            if (trainers != null) {
-                traineeToTrainers.put(newUsername, trainers);
-            }
-        }
+    public Optional<Trainee> findByUsername(String username) {
+        return byId.values().stream()
+                .filter(t -> t.getUser().getUsername().equals(username))
+                .findFirst();
     }
 
     @Override
-    public Trainee findByUsername(String username) {
-        return trainees.get(username);
+    public List<Trainee> findAll() {
+        return new ArrayList<>(byId.values());
     }
 
     @Override
-    public Trainee update(String username, String firstName, String lastName, LocalDate dateOfBirth, String address) {
-        Trainee t = trainees.get(username);
-        if (t != null) {
-            t.setFirstName(firstName);
-            t.setLastName(lastName);
-            t.setDateOfBirth(dateOfBirth);
-            t.setAddress(address);
-        }
-        return t;
+    public Trainee create(Trainee trainee) {
+        long id = idGen.incrementAndGet();
+        trainee.setId(id);
+        byId.put(id, trainee);
+        return trainee;
     }
 
     @Override
-    public void deleteByUsername(String username) {
-        trainees.remove(username);
-        passwords.remove(username);
-        traineeToTrainers.remove(username);
+    public Trainee update(Trainee trainee) {
+        byId.put(trainee.getId(), trainee);
+        return trainee;
     }
 
     @Override
-    public void assignTrainer(String traineeUsername, String trainerUsername) {
-        traineeToTrainers
-                .computeIfAbsent(traineeUsername, k -> ConcurrentHashMap.newKeySet())
-                .add(trainerUsername);
+    public void deleteById(Long id) {
+        byId.remove(id);
     }
 
     @Override
-    public List<String> findTrainers(String traineeUsername) {
-        Set<String> set = traineeToTrainers.get(traineeUsername);
-        return set == null ? Collections.emptyList() : new ArrayList<>(set);
+    public void deleteAll() {
+        byId.clear();
+        idGen.set(0);
     }
 }
