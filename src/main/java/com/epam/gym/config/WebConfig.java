@@ -1,5 +1,6 @@
 package com.epam.gym.config;
 
+import com.epam.gym.filter.TransactionInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +16,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableWebMvc
 @EnableSwagger2
-@ComponentScan(basePackages = "com.epam.gym")
+@ComponentScan(basePackages = "com.epam.gym.controller")
 public class WebConfig implements WebMvcConfigurer {
+
     @Bean
     public Docket apiDocket() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -28,6 +30,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new com.epam.gym.filter.TransactionInterceptor());
+        registry.addInterceptor(new TransactionInterceptor());
     }
 }
